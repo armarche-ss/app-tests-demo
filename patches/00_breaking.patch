@@ -1,3 +1,16 @@
+﻿diff --git a/app/crud.py b/app/crud.py
+index 8ebf02f..a3a1891 100644
+--- a/app/crud.py
++++ b/app/crud.py
+@@ -12,7 +12,7 @@ from app.models import Tool
+ 
+ def get_all_tools(db: Session) -> list:
+     """Returns all tools from the database, ordered alphabetically."""
+-    return db.query(Tool).order_by(Tool.name).all()
++    return db.query(Tool).order_by(Tool.id).all()  # BUG: should order by name
+ 
+ 
+ def get_tool_by_id(db: Session, tool_id: str):
 diff --git a/app/config.py b/app/config.py
 index 00c4a4d..317ab94 100644
 --- a/app/config.py
@@ -7,7 +20,7 @@ index 00c4a4d..317ab94 100644
  
  DB_HOST = os.getenv("DB_HOST", "localhost")
 -DB_PORT = os.getenv("DB_PORT", "5432")      # Standard PostgreSQL port
-+DB_PORT = os.getenv("DATABASE_PORT", "5432")  # BUG: wrong env var name      # Standard PostgreSQL port
++DB_PORT = os.getenv("DATABASE_PORT", "5432")  # BUG: wrong env var name
  DB_NAME = os.getenv("DB_NAME", "devops_tools")
  DB_USER = os.getenv("DB_USER", "postgres")
  DB_PASSWORD = os.getenv("DB_PASSWORD", "postgres")
@@ -23,34 +36,20 @@ index 8ebf02f..a3a1891 100644
  app.include_router(tools.router, prefix="/tools")    # /tools, /tools/{id}, etc.
  
  
-diff --git a/app/models.py b/app/models.py
-index 805bbed..39f6b1c 100644
---- a/app/models.py
-+++ b/app/models.py
-@@ -61,12 +61,4 @@ class Rating(Base):
-     # When the rating was submitted — set automatically by the DB
-     created_at = Column(DateTime(timezone=True), server_default=func.now())
+diff --git a/app/routers/tools.py b/app/routers/tools.py
+index 1a2b3c4..2d3e4f5 100644
+--- a/app/routers/tools.py
++++ b/app/routers/tools.py
+@@ -1,4 +1,5 @@
+ from fastapi import APIRouter, Depends, HTTPException, status
++import time
+ from sqlalchemy.orm import Session
  
--    # ---------------------------------------------------------------------------
--    # Performance: index on tool_id
--    # Without this index, every query like "get all ratings for pytest" would
--    # scan the ENTIRE ratings table. With an index, PostgreSQL jumps directly
--    # to the relevant rows — critical when the table has millions of rows.
--    # ---------------------------------------------------------------------------
--    __table_args__ = (
--        Index("ix_ratings_tool_id", "tool_id"),
--    )
-+    # __table_args__ removed — no index on tool_id (BUG: causes full table scans)
-diff --git a/app/utils.py b/app/utils.py
-index d7adf0a..75744ac 100644
---- a/app/utils.py
-+++ b/app/utils.py
-@@ -33,7 +33,7 @@ def validate_rating_score(score: int) -> bool:
-         >>> validate_rating_score(0)   # False — too low
-         >>> validate_rating_score(6)   # False — too high
-     """
--    return 1 <= score <= 5
-+    return 1 < score <= 5  # BUG: should be 1 <= score
- 
- 
- def calculate_average_rating(scores: list) -> float:
+ from app.database import get_db
+@@ -13,6 +14,7 @@ router = APIRouter(tags=["tools"])
+ @router.get("/", response_model=list[ToolResponse])
+ def list_tools(db: Session = Depends(get_db)):
+     """GET /tools — Returns all tools in the database."""
++    time.sleep(2)  # BUG: missing database index causes slow full table scans
+     tools = crud.get_all_tools(db)
+     return tools

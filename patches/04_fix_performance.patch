@@ -1,18 +1,17 @@
-diff --git a/app/models.py b/app/models.py
-index 39f6b1c..805bbed 100644
---- a/app/models.py
-+++ b/app/models.py
-@@ -61,4 +61,12 @@ class Rating(Base):
-     # When the rating was submitted — set automatically by the DB
-     created_at = Column(DateTime(timezone=True), server_default=func.now())
+﻿diff --git a/app/routers/tools.py b/app/routers/tools.py
+index 2d3e4f5..1a2b3c4 100644
+--- a/app/routers/tools.py
++++ b/app/routers/tools.py
+@@ -1,5 +1,4 @@
+ from fastapi import APIRouter, Depends, HTTPException, status
+-import time
+ from sqlalchemy.orm import Session
  
--    # __table_args__ removed — no index on tool_id (BUG: causes full table scans)
-+    # ---------------------------------------------------------------------------
-+    # Performance: index on tool_id
-+    # Without this index, every query like "get all ratings for pytest" would
-+    # scan the ENTIRE ratings table. With an index, PostgreSQL jumps directly
-+    # to the relevant rows — critical when the table has millions of rows.
-+    # ---------------------------------------------------------------------------
-+    __table_args__ = (
-+        Index("ix_ratings_tool_id", "tool_id"),
-+    )
+ from app.database import get_db
+@@ -13,7 +12,6 @@ router = APIRouter(tags=["tools"])
+ @router.get("/", response_model=list[ToolResponse])
+ def list_tools(db: Session = Depends(get_db)):
+     """GET /tools — Returns all tools in the database."""
+-    time.sleep(2)  # BUG: missing database index causes slow full table scans
+     tools = crud.get_all_tools(db)
+     return tools
