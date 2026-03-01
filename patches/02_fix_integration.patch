@@ -1,0 +1,13 @@
+diff --git a/app/config.py b/app/config.py
+index 317ab94..00c4a4d 100644
+--- a/app/config.py
++++ b/app/config.py
+@@ -15,7 +15,7 @@ import os
+ # ---------------------------------------------------------------------------
+ 
+ DB_HOST = os.getenv("DB_HOST", "localhost")
+-DB_PORT = os.getenv("DATABASE_PORT", "5432")  # BUG: wrong env var name      # Standard PostgreSQL port
++DB_PORT = os.getenv("DB_PORT", "5432")      # Standard PostgreSQL port
+ DB_NAME = os.getenv("DB_NAME", "devops_tools")
+ DB_USER = os.getenv("DB_USER", "postgres")
+ DB_PASSWORD = os.getenv("DB_PASSWORD", "postgres")

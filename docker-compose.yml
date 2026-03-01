@@ -1,0 +1,86 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: devops_rating_db
+    environment:
+      POSTGRES_USER:     postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh:ro
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  
+    ports:
+    - "5432:5432"    # ← The only published port in the entire stack
+
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: devops_rating_api
+    environment:
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_NAME: devops_rating
+      DB_USER: postgres
+      DB_PASS: postgres
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./app:/app/app
+    ports:
+    - "8000:8000"    # ← The only published port in the entire stack
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: devops_rating_frontend
+    ports:
+      - "80:80"    # ← The only published port in the entire stack
+    depends_on:
+      - api
+
+  tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.tests
+
+    container_name: devops_rating_tests
+
+    environment:
+      # Tell conftest.py to use real PostgreSQL instead of SQLite
+      TEST_USE_POSTGRES: "1"
+      SMOKE_BASE_URL:    http://api:8000
+      DB_HOST:           db
+      DB_PORT:           "5432"
+      DB_NAME:           devops_rating
+      DB_USER:           postgres
+      DB_PASS:           postgres
+
+    depends_on:
+      db:
+        condition: service_healthy
+      api:
+        condition: service_started
+
+    # `profiles` means this service only starts when explicitly requested:
+    #   docker compose run tests           ← starts it
+    #   docker compose up                  ← does NOT start it automatically
+    profiles:
+      - testing
+
+# ---------------------------------------------------------------------------
+# Volumes
+# ---------------------------------------------------------------------------
+volumes:
+  postgres_data:
+    # Persists PostgreSQL data across container restarts.
+    # To wipe data and start fresh: docker compose down -v

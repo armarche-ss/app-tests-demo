@@ -1,0 +1,8 @@
+# Test dependencies — not installed in production Docker image
+
+-r requirements.txt       # Include all production deps
+pytest==7.4.4             # Test runner
+pytest-cov==4.1.0         # Coverage reporting
+httpx==0.26.0             # Async HTTP client (FastAPI TestClient uses this)
+locust==2.20.0            # Performance testing
+requests==2.31.0          # HTTP client for smoke tests

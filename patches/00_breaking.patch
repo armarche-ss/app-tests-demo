@@ -1,0 +1,56 @@
+diff --git a/app/config.py b/app/config.py
+index 00c4a4d..317ab94 100644
+--- a/app/config.py
++++ b/app/config.py
+@@ -15,7 +15,7 @@ import os
+ # ---------------------------------------------------------------------------
+ 
+ DB_HOST = os.getenv("DB_HOST", "localhost")
+-DB_PORT = os.getenv("DB_PORT", "5432")      # Standard PostgreSQL port
++DB_PORT = os.getenv("DATABASE_PORT", "5432")  # BUG: wrong env var name      # Standard PostgreSQL port
+ DB_NAME = os.getenv("DB_NAME", "devops_tools")
+ DB_USER = os.getenv("DB_USER", "postgres")
+ DB_PASSWORD = os.getenv("DB_PASSWORD", "postgres")
+diff --git a/app/main.py b/app/main.py
+index 8ebf02f..a3a1891 100644
+--- a/app/main.py
++++ b/app/main.py
+@@ -36,7 +36,6 @@ Base.metadata.create_all(bind=engine)
+ # Each router groups related endpoints. The prefix is prepended to all
+ # routes defined inside that router.
+ # ---------------------------------------------------------------------------
+-app.include_router(health.router)                    # /health
+ app.include_router(tools.router, prefix="/tools")    # /tools, /tools/{id}, etc.
+ 
+ 
+diff --git a/app/models.py b/app/models.py
+index 805bbed..39f6b1c 100644
+--- a/app/models.py
++++ b/app/models.py
+@@ -61,12 +61,4 @@ class Rating(Base):
+     # When the rating was submitted — set automatically by the DB
+     created_at = Column(DateTime(timezone=True), server_default=func.now())
+ 
+-    # ---------------------------------------------------------------------------
+-    # Performance: index on tool_id
+-    # Without this index, every query like "get all ratings for pytest" would
+-    # scan the ENTIRE ratings table. With an index, PostgreSQL jumps directly
+-    # to the relevant rows — critical when the table has millions of rows.
+-    # ---------------------------------------------------------------------------
+-    __table_args__ = (
+-        Index("ix_ratings_tool_id", "tool_id"),
+-    )
++    # __table_args__ removed — no index on tool_id (BUG: causes full table scans)
+diff --git a/app/utils.py b/app/utils.py
+index d7adf0a..75744ac 100644
+--- a/app/utils.py
++++ b/app/utils.py
+@@ -33,7 +33,7 @@ def validate_rating_score(score: int) -> bool:
+         >>> validate_rating_score(0)   # False — too low
+         >>> validate_rating_score(6)   # False — too high
+     """
+-    return 1 <= score <= 5
++    return 1 < score <= 5  # BUG: should be 1 <= score
+ 
+ 
+ def calculate_average_rating(scores: list) -> float:

@@ -1,0 +1,13 @@
+diff --git a/app/utils.py b/app/utils.py
+index 75744ac..d7adf0a 100644
+--- a/app/utils.py
++++ b/app/utils.py
+@@ -33,7 +33,7 @@ def validate_rating_score(score: int) -> bool:
+         >>> validate_rating_score(0)   # False — too low
+         >>> validate_rating_score(6)   # False — too high
+     """
+-    return 1 < score <= 5  # BUG: should be 1 <= score
++    return 1 <= score <= 5
+ 
+ 
+ def calculate_average_rating(scores: list) -> float:

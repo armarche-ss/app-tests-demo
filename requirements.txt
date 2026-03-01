@@ -1,0 +1,7 @@
+# Production dependencies — installed in the Docker container
+
+fastapi
+uvicorn[standard]
+sqlalchemy
+psycopg2-binary
+pydantic
