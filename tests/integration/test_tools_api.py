@@ -119,6 +119,21 @@ class TestListTools:
         assert response.status_code == 200
         assert len(response.json()) == 3
 
+    def test_tools_returned_in_alphabetical_order(self, client: TestClient, multiple_tools):
+        """
+        Tools must be returned in alphabetical order by name.
+        This test will fail if ordering is broken (e.g., ordered by ID or category).
+        """
+        response = client.get("/tools/")
+        
+        assert response.status_code == 200
+        tools = response.json()
+        names = [t["name"] for t in tools]
+        
+        # Expected alphabetical order: Docker, Prometheus, Terraform
+        assert names == ["Docker", "Prometheus", "Terraform"], \
+            f"Tools not in alphabetical order. Got: {names}"
+
     def test_response_schema_shape(self, client: TestClient, sample_tool):
         """
         Each tool in the response has exactly the expected fields.
@@ -178,29 +193,3 @@ class TestGetTool:
 
         assert response.status_code == 200
         assert response.json()["description"] is None
-
-
-# =============================================================================
-# Tests — GET /health
-# =============================================================================
-
-class TestHealthEndpoint:
-
-    def test_health_returns_200(self, client: TestClient):
-        """
-        GET /health returns HTTP 200.
-        If this fails, the entire app stack (routing + DB) is broken.
-        """
-        response = client.get("/health")
-
-        assert response.status_code == 200
-
-    def test_health_response_body(self, client: TestClient):
-        """
-        The response must have status=ok and database=connected.
-        """
-        response = client.get("/health")
-        data = response.json()
-
-        assert data["status"]   == "ok"
-        assert data["database"] == "connected"

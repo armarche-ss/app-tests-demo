@@ -11,7 +11,7 @@ index 5dfc0fb..da1ed03 100644
      f"{os.getenv('DB_NAME', 'devops_rating')}"
  )
 diff --git a/app/crud.py b/app/crud.py
-index 383dbcd..af9e0de 100644
+index 383dbcd..77dace3 100644
 --- a/app/crud.py
 +++ b/app/crud.py
 @@ -10,7 +10,7 @@ from app.models import Tool
@@ -19,16 +19,10 @@ index 383dbcd..af9e0de 100644
  def get_all_tools(db: Session) -> list:
      """Returns all tools from the database, ordered alphabetically."""
 -    return db.query(Tool).order_by(Tool.name).all()
-+    return db.query(Tool).order_by(Tool.id).all()
++    return db.query(Tool).order_by(Tool.category).all()
  
  
  def get_tool_by_id(db: Session, tool_id: str):
-@@ -21,4 +21,4 @@ def get_tool_by_id(db: Session, tool_id: str):
-     .filter(...)   → add a WHERE clause
-     .first()       → return the first result or None
-     """
--    return db.query(Tool).filter(Tool.id == tool_id).first()
-+    return db.query(Tool).first()
 diff --git a/app/main.py b/app/main.py
 index d983d35..dd4bf4e 100644
 --- a/app/main.py
