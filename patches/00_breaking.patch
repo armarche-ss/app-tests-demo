@@ -1,43 +1,48 @@
-﻿diff --git a/app/crud.py b/app/crud.py
-index 8ebf02f..a3a1891 100644
+diff --git a/app/config.py b/app/config.py
+index 5dfc0fb..da1ed03 100644
+--- a/app/config.py
++++ b/app/config.py
+@@ -14,6 +14,6 @@ DATABASE_URL = os.getenv("DATABASE_URL") or (
+     f"{os.getenv('DB_USER', 'postgres')}:"
+     f"{os.getenv('DB_PASS', 'postgres')}@"
+     f"{os.getenv('DB_HOST', 'localhost')}:"
+-    f"{os.getenv('DB_PORT', '5432')}/"
++    f"{os.getenv('DATABASE_PORT', '3306')}/"
+     f"{os.getenv('DB_NAME', 'devops_rating')}"
+ )
+diff --git a/app/crud.py b/app/crud.py
+index 383dbcd..af9e0de 100644
 --- a/app/crud.py
 +++ b/app/crud.py
-@@ -12,7 +12,7 @@ from app.models import Tool
+@@ -10,7 +10,7 @@ from app.models import Tool
  
  def get_all_tools(db: Session) -> list:
      """Returns all tools from the database, ordered alphabetically."""
 -    return db.query(Tool).order_by(Tool.name).all()
-+    return db.query(Tool).order_by(Tool.id).all()  # BUG: should order by name
++    return db.query(Tool).order_by(Tool.id).all()
  
  
  def get_tool_by_id(db: Session, tool_id: str):
-diff --git a/app/config.py b/app/config.py
-index 00c4a4d..317ab94 100644
---- a/app/config.py
-+++ b/app/config.py
-@@ -15,7 +15,7 @@ import os
- # ---------------------------------------------------------------------------
- 
- DB_HOST = os.getenv("DB_HOST", "localhost")
--DB_PORT = os.getenv("DB_PORT", "5432")      # Standard PostgreSQL port
-+DB_PORT = os.getenv("DATABASE_PORT", "5432")  # BUG: wrong env var name
- DB_NAME = os.getenv("DB_NAME", "devops_tools")
- DB_USER = os.getenv("DB_USER", "postgres")
- DB_PASSWORD = os.getenv("DB_PASSWORD", "postgres")
+@@ -21,4 +21,4 @@ def get_tool_by_id(db: Session, tool_id: str):
+     .filter(...)   → add a WHERE clause
+     .first()       → return the first result or None
+     """
+-    return db.query(Tool).filter(Tool.id == tool_id).first()
++    return db.query(Tool).first()
 diff --git a/app/main.py b/app/main.py
-index 8ebf02f..a3a1891 100644
+index d983d35..dd4bf4e 100644
 --- a/app/main.py
 +++ b/app/main.py
-@@ -36,7 +36,6 @@ Base.metadata.create_all(bind=engine)
- # Each router groups related endpoints. The prefix is prepended to all
- # routes defined inside that router.
- # ---------------------------------------------------------------------------
--app.include_router(health.router)                    # /health
- app.include_router(tools.router, prefix="/tools")    # /tools, /tools/{id}, etc.
+@@ -9,7 +9,6 @@ app = FastAPI(
+     version="1.0.0",
+ )
+ 
+-app.include_router(health.router)
+ app.include_router(tools.router, prefix="/tools")
  
  
 diff --git a/app/routers/tools.py b/app/routers/tools.py
-index 1a2b3c4..2d3e4f5 100644
+index 8db2f59..b92c61a 100644
 --- a/app/routers/tools.py
 +++ b/app/routers/tools.py
 @@ -1,4 +1,5 @@
@@ -46,10 +51,14 @@ index 1a2b3c4..2d3e4f5 100644
  from sqlalchemy.orm import Session
  
  from app.database import get_db
-@@ -13,6 +14,7 @@ router = APIRouter(tags=["tools"])
+@@ -11,8 +12,9 @@ router = APIRouter(tags=["tools"])
+ 
  @router.get("/", response_model=list[ToolResponse])
  def list_tools(db: Session = Depends(get_db)):
-     """GET /tools — Returns all tools in the database."""
-+    time.sleep(2)  # BUG: missing database index causes slow full table scans
-     tools = crud.get_all_tools(db)
-     return tools
++    time.sleep(2)
+     """
+-    GET /tools — Returns all tools in the database.
++    GET /tools - Returns all tools in the database.
+ 
+     response_model=list[ToolResponse] tells FastAPI to:
+       - Filter the ORM objects through the ToolResponse schema
