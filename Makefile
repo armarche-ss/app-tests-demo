@@ -50,14 +50,12 @@ help:
 # Infrastructure
 # ---------------------------------------------------------------------------
 
-up:
-	@echo "🚀 Building and starting services..."
+
+build:
+	docker compose build --no-cache
+
+up: build
 	docker compose up -d --build
-	@echo ""
-	@echo "  ✅ Stack is up"
-	@echo "  UI:   http://localhost"
-	@echo "  Docs: http://localhost/api/docs"
-	@echo ""
 
 down:
 	docker compose down
