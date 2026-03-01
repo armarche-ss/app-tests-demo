@@ -1,27 +1,9 @@
-# =============================================================================
-# Dockerfile.tests — Container for running non-unit tests
-#
-# UNIT TESTS run locally on the developer's machine (no Docker needed).
-# They use mocks and SQLite — no running services required.
-#   → pytest tests/unit/
-#
-# ALL OTHER TESTS run inside this container because they need to reach
-# real services (the api and db containers) over the Docker network:
-#
-#   Integration tests → need api:8000 (real FastAPI) + db:5432 (PostgreSQL)
-#   Smoke tests       → need api:8000 to be live and healthy
-#   Performance tests → Locust connects to api:8000 and simulates load
-#
-# This container shares the same Docker network as the app services,
-# so it can resolve hostnames like "api" and "db" directly.
-# =============================================================================
-
-FROM python:3.11-slim
+FROM python:3.13-slim
 
 WORKDIR /tests
 
 # Install system dependencies required by the PostgreSQL driver
-RUN apt-get update && apt-get install -y \
+RUN apt update && apt install -y \
     libpq-dev \
     gcc \
     curl \
@@ -32,8 +14,7 @@ COPY requirements*.txt .
 RUN pip install --no-cache-dir -r requirements-test.txt
 
 # Copy test files and app source (needed by integration tests to import app modules)
-COPY tests/ ./tests/
-COPY app/   ./app/
+COPY tests/ .
 
 # Copy pytest config
 COPY pytest.ini .
@@ -47,9 +28,3 @@ ENV DB_USER=postgres
 ENV DB_PASS=postgres
 ENV PYTHONPATH=/tests
 
-# Default command runs integration + smoke tests.
-# Override at runtime:
-#   docker compose run tests pytest tests/integration/ -v
-#   docker compose run tests pytest tests/smoke/ -v
-#   docker compose run tests locust -f tests/performance/locustfile.py --headless ...
-CMD ["pytest", "tests/integration/", "tests/smoke/", "-v", "--tb=short"]

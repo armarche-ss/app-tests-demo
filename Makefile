@@ -134,7 +134,7 @@ test-perf:
 	@echo "════════════════════════════════════════════"
 	docker compose --profile testing run --rm tests \
 	  locust \
-	    -f tests/performance/locustfile.py \
+	    -f /tests/performance/locustfile.py \
 	    --host http://api:8000 \
 	    --headless \
 	    -u 50 -r 5 \
