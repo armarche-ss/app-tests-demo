@@ -9,22 +9,11 @@ The environment variables are defined in docker-compose.yml.
 """
 import os
 
-# ---------------------------------------------------------------------------
-# Database connection settings
-# Each value has a sensible default for local development without Docker.
-# ---------------------------------------------------------------------------
-
-DB_HOST = os.getenv("DB_HOST", "localhost")
-DB_PORT = os.getenv("DB_PORT", "5432")      # Standard PostgreSQL port
-DB_NAME = os.getenv("DB_NAME", "devops_tools")
-DB_USER = os.getenv("DB_USER", "postgres")
-DB_PASSWORD = os.getenv("DB_PASSWORD", "postgres")
-
-# ---------------------------------------------------------------------------
-# Build the full connection URL from the individual parts above.
-# SQLAlchemy uses this URL to connect to the database.
-# Format: postgresql://user:password@host:port/dbname
-# ---------------------------------------------------------------------------
-DATABASE_URL = (
-    f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+DATABASE_URL = os.getenv("DATABASE_URL") or (
+    "postgresql://"
+    f"{os.getenv('DB_USER', 'postgres')}:"
+    f"{os.getenv('DB_PASS', 'postgres')}@"
+    f"{os.getenv('DB_HOST', 'localhost')}:"
+    f"{os.getenv('DB_PORT', '5432')}/"
+    f"{os.getenv('DB_NAME', 'devops_rating')}"
 )

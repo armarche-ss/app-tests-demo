@@ -5,25 +5,9 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, declarative_base   # SQLAlchemy 2.0 location
 from sqlalchemy.exc import OperationalError
 
-logger = logging.getLogger(__name__)
+from config import DATABASE_URL
 
-# ---------------------------------------------------------------------------
-# Database URL — supports a full override via DATABASE_URL env var.
-#
-# When running normally (in Docker), DATABASE_URL is not set, so we build
-# the PostgreSQL URL from the individual DB_* variables set in docker-compose.
-#
-# When running tests locally, conftest.py sets DATABASE_URL to a SQLite URL
-# before importing this module, so the PostgreSQL URL is never constructed.
-# ---------------------------------------------------------------------------
-DATABASE_URL = os.getenv("DATABASE_URL") or (
-    "postgresql://"
-    f"{os.getenv('DB_USER', 'postgres')}:"
-    f"{os.getenv('DB_PASS', 'postgres')}@"
-    f"{os.getenv('DB_HOST', 'localhost')}:"
-    f"{os.getenv('DB_PORT', '5432')}/"
-    f"{os.getenv('DB_NAME', 'devops_rating')}"
-)
+logger = logging.getLogger(__name__)
 
 
 # Build the correct engine for the current DATABASE_URL.
