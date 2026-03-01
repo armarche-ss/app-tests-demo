@@ -5,7 +5,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, declarative_base   # SQLAlchemy 2.0 location
 from sqlalchemy.exc import OperationalError
 
-from config import DATABASE_URL
+from .config import DATABASE_URL
 
 logger = logging.getLogger(__name__)
 
