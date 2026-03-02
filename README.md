@@ -1,4 +1,4 @@
-# 🧪 Testing Stages — DevOps Tools Rating API
+# Example project for demonstating the different test types
 
 > **A hands-on demo for teaching unit, integration, smoke, and performance testing.**
 > FastAPI backend + PostgreSQL + nginx frontend, all running via Docker Compose.

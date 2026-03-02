@@ -1,27 +1,3 @@
-"""
-tests/unit/test_services.py — Unit tests for crud.py
-
-═══════════════════════════════════════════════════════════════════════
-WHAT ARE UNIT TESTS?
-═══════════════════════════════════════════════════════════════════════
-Unit tests verify a single function in complete isolation.
-
-"Isolation" means:
-  ✅ No database (we use MagicMock to fake it)
-  ✅ No HTTP server
-  ✅ No Docker
-  ✅ Extremely fast — runs in milliseconds
-
-How mocking works:
-  MagicMock() creates a fake object that records every call made on it.
-  We configure it to return specific values (like a fake Tool), then
-  call the real function and assert it behaved correctly.
-
-Run with:
-  pytest tests/unit/ -v
-  (no Docker, no running services needed)
-═══════════════════════════════════════════════════════════════════════
-"""
 import pytest
 from unittest.mock import MagicMock
 

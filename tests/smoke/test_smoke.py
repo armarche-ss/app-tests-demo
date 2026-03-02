@@ -1,55 +1,7 @@
-"""
-tests/smoke/test_smoke.py — Smoke tests against the live application.
-
-═══════════════════════════════════════════════════════════════════════
-WHAT ARE SMOKE TESTS?
-═══════════════════════════════════════════════════════════════════════
-Smoke tests verify that the deployed application is alive and its
-critical endpoints are reachable. The name comes from hardware testing:
-"turn it on and check if it smokes."
-
-They are run AFTER deployment — not before.
-They do NOT test business logic in depth — that is integration's job.
-They answer one question: "is the system up and responding?"
-
-KEY DIFFERENCES FROM INTEGRATION TESTS:
-  Integration tests:
-    - Use FastAPI's TestClient (in-process, controlled DB)
-    - Run before deployment
-    - Test business logic thoroughly
-
-  Smoke tests:
-    - Use the `requests` library to hit the REAL running server over HTTP
-    - Run AFTER deployment (docker compose up)
-    - Only verify critical paths are alive
-
-WHAT THEY CATCH THAT INTEGRATION TESTS MISS:
-  - App crashed on startup (bad env var, import error)
-  - An endpoint was accidentally deleted from the router
-  - Wrong Docker port mapping
-  - DB unreachable from inside Docker network
-  - nginx proxy misconfigured
-
-HOW TO RUN:
-  # App must be running first:
-  docker compose up -d
-
-  # Inside the tests container (default):
-  docker compose run --rm tests pytest tests/smoke/ -v
-
-  # Locally against a running stack:
-  SMOKE_BASE_URL=http://localhost pytest tests/smoke/ -v
-═══════════════════════════════════════════════════════════════════════
-"""
 import os
 import pytest
 import requests
 
-# ---------------------------------------------------------------------------
-# Target URL — where the live server is.
-# Default points to the api container hostname inside Docker network.
-# Override with SMOKE_BASE_URL=http://localhost when running locally.
-# ---------------------------------------------------------------------------
 BASE_URL = os.getenv("SMOKE_BASE_URL", "http://api:8000")
 
 

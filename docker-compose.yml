@@ -14,10 +14,6 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-  
-    ports:
-    - "5432:5432"    # ← The only published port in the entire stack
-
 
   api:
     build:
@@ -35,8 +31,6 @@ services:
         condition: service_healthy
     volumes:
       - ./app:/app/app
-    ports:
-    - "8000:8000"    # ← The only published port in the entire stack
 
   frontend:
     build:
@@ -44,7 +38,7 @@ services:
       dockerfile: Dockerfile
     container_name: devops_rating_frontend
     ports:
-      - "80:80"    # ← The only published port in the entire stack
+      - "80:80"
     depends_on:
       - api
 
@@ -52,28 +46,17 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.tests
-
     container_name: devops_rating_tests
-
     environment:
       SMOKE_BASE_URL: http://api:8000
-
+    profiles:
+      - testing
     depends_on:
       db:
         condition: service_healthy
       api:
         condition: service_started
 
-    # `profiles` means this service only starts when explicitly requested:
-    #   docker compose run tests           ← starts it
-    #   docker compose up                  ← does NOT start it automatically
-    profiles:
-      - testing
 
-# ---------------------------------------------------------------------------
-# Volumes
-# ---------------------------------------------------------------------------
 volumes:
   postgres_data:
-    # Persists PostgreSQL data across container restarts.
-    # To wipe data and start fresh: docker compose down -v

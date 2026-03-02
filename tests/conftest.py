@@ -1,54 +1,7 @@
-"""
-tests/conftest.py — Shared pytest fixtures for all test types.
-
-DATABASE ISOLATION STRATEGY:
-──────────────────────────────────────────────────────────────────────
-  The two problems this file solves:
-
-  Problem 1 — Seed data pollution:
-    main.py seeds 15 tools into the database on startup. If tests connect
-    to the same `devops_rating` database, `test_empty_database_returns_empty_list`
-    will always fail (it finds 15 rows instead of 0).
-
-    Fix: tests use a SEPARATE database named `devops_rating_test`.
-    The app startup event never touches this database, so tests always
-    start with a clean, unseeded schema.
-
-  Problem 2 — Duplicate key errors across tests:
-    session.rollback() only undoes changes made in the CURRENT session that
-    haven't been committed yet. Once a fixture calls session.commit(), that
-    data is permanent until explicitly deleted. The next test's fixture then
-    tries to INSERT the same primary key and gets a UniqueViolation.
-
-    Fix: the db_session fixture deletes all rows from every table after
-    each test, regardless of whether the test committed or rolled back.
-
-DATABASE SELECTION:
-──────────────────────────────────────────────────────────────────────
-  DATABASE_URL MUST be set before importing any app module.
-  app/database.py reads it at import time to build its engine.
-  We set it here at the very top of conftest.py, which pytest loads first.
-
-  Locally (no Docker):   SQLite, no setup needed.
-  In Docker tests container (TEST_USE_POSTGRES=1): devops_rating_test
-──────────────────────────────────────────────────────────────────────
-"""
-
 import os
 
-# # ---------------------------------------------------------------------------
-# # Step 1 — Determine and set DATABASE_URL BEFORE any app imports.
-# #
-# # If we don't do this first, `from app.main import app` triggers
-# # app/database.py which tries to TCP-connect to PostgreSQL immediately.
-# # ---------------------------------------------------------------------------
-
-
+# We define before import of app modules so that app/database.py reads this value instead of the default.
 os.environ["DATABASE_URL"] = "sqlite:///./test.db"
-# ---------------------------------------------------------------------------
-# Step 2 — Now it is safe to import app modules.
-#           database.py will read DATABASE_URL from os.environ above.
-# ---------------------------------------------------------------------------
 
 import pytest
 from sqlalchemy import create_engine, text

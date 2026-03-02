@@ -1,44 +1,7 @@
-"""
-tests/integration/test_tools_api.py — Integration tests for the Tools API.
-
-═══════════════════════════════════════════════════════════════════════
-WHAT ARE INTEGRATION TESTS?
-═══════════════════════════════════════════════════════════════════════
-Integration tests verify that multiple components work TOGETHER.
-
-Unlike unit tests (which mock the database), integration tests use:
-  ✅ A real database (SQLite locally, PostgreSQL in Docker)
-  ✅ The full HTTP request → router → crud → database → response flow
-  ✅ FastAPI's TestClient to make real HTTP requests
-
-What they catch that unit tests miss:
-  - SQL queries that are wrong or reference missing columns
-  - ORM model mismatches with the actual table schema
-  - Incorrect HTTP status codes
-  - Missing or misconfigured environment variables
-  - Serialization bugs (ORM object → JSON)
-
-DATABASE ISOLATION:
-  Each test gets a clean database (all tables empty) courtesy of the
-  db_session fixture in conftest.py. It deletes all rows after each test,
-  so tests cannot pollute each other's data.
-
-  We use `devops_rating_test` — a separate database that the app's startup
-  seed event never touches — so there is no pre-existing data to worry about.
-
-Run locally (no Docker needed):
-  pytest tests/integration/ -v
-
-Run in Docker (against real PostgreSQL):
-  docker compose run --rm tests pytest tests/integration/ -v
-═══════════════════════════════════════════════════════════════════════
-"""
 import pytest
 from fastapi.testclient import TestClient
 
 from app.models import Tool
-
-import time
 
 
 # ---------------------------------------------------------------------------

@@ -1,17 +1,6 @@
-#!/bin/bash
-# =============================================================================
-# scripts/init-db.sh
-#
-# Mounted into /docker-entrypoint-initdb.d/ in the PostgreSQL container.
-# Docker executes .sh files here on the very first startup of a fresh volume.
-#
-# For existing volumes, Docker skips this entirely — database.py's
-# ensure_database_exists() handles that case instead.
-# =============================================================================
-
 set -e
 
-echo "🗄️  Running init-db.sh — creating application database if needed..."
+echo "Running init-db.sh — seeding database if needed..."
 
 # psql is available inside the postgres container.
 # We connect as the POSTGRES_USER (set via docker-compose env) and
@@ -52,4 +41,4 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "postgres" <<-EOSQL
     ON CONFLICT (id) DO NOTHING\gexec
 EOSQL
 
-echo "✅ init-db.sh complete"
+echo "init-db.sh complete"

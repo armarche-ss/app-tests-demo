@@ -1,12 +1,3 @@
-"""
-config.py — Application configuration
-======================================
-All settings are read from environment variables.
-This is the standard 12-factor app approach: configuration lives outside
-the code so the same Docker image can run in dev, test, and production.
-
-The environment variables are defined in docker-compose.yml.
-"""
 import os
 
 DATABASE_URL = os.getenv("DATABASE_URL") or (
