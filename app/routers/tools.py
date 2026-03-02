@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+import time
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -12,7 +13,7 @@ router = APIRouter(tags=["tools"])
 @router.get("/", response_model=list[ToolResponse])
 def list_tools(db: Session = Depends(get_db)):
     """
-    GET /tools — Returns all tools in the database.
+    GET /tools - Returns all tools in the database.
 
     response_model=list[ToolResponse] tells FastAPI to:
       - Filter the ORM objects through the ToolResponse schema

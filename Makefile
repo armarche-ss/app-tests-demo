@@ -1,8 +1,7 @@
-.PHONY: help up down logs status restart \
+.PHONY: up down logs status restart \
         test-unit test-integration test-smoke test-perf test-all \
         patch-break patch-fix-unit patch-fix-integration \
         patch-fix-smoke patch-fix-perf patch-reset
-
 
 
 build:
@@ -39,6 +38,8 @@ test-perf:
 	    --headless \
 	    -u 50 -r 5 \
 	    --run-time 30s
+
+test-all: test-unit test-integration test-smoke test-perf
 
 patch-break:
 	git apply patches/00_breaking.patch
