@@ -4,6 +4,10 @@ from sqlalchemy import func
 from app.models import Tool
 
 
+# ---------------------------------------------------------------------------
+# Tool queries
+# ---------------------------------------------------------------------------
+
 def get_all_tools(db: Session) -> list:
     """Returns all tools from the database, ordered alphabetically."""
     return db.query(Tool).order_by(Tool.name).all()
