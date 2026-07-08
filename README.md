@@ -11,7 +11,7 @@ The DevOps Tools Rating API provides endpoints to manage and retrieve informatio
 - REST API for managing DevOps tools
 - PostgreSQL database integration
 - Live GitHub star sync via a FastAPI background task (`POST /tools/sync`)
-- Frontend with a "Sync stars" button, a "last synced" indicator, and star icons that link to each tool's GitHub page
+- Frontend with a "Sync stars" button, a "last synced" indicator, and tool names that link to each tool's GitHub page
 - Health check endpoint for system monitoring
 - Comprehensive test coverage (unit, integration, smoke, performance, end-to-end)
 - Docker and Docker Compose support for easy deployment
@@ -46,7 +46,7 @@ app-tests-demo/
 │   │   └── locustfile.py
 │   └── e2e/                    # End-to-end browser tests (Selenium)
 │       ├── conftest.py
-│       ├── test_star_icon.py
+│       ├── test_github_link.py
 │       └── test_sync.py
 ├── patches/                    # Git patches for bug demonstrations
 │   └── 00_breaking.patch      # Introduces 5 bugs

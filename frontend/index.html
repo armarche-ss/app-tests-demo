@@ -142,8 +142,7 @@
       padding: 2px 7px; border-radius: 2px; letter-spacing: 1px; text-transform: uppercase;
       margin-left: 8px; vertical-align: middle;
     }
-    .github-stars { font-size: 11px; color: #555; white-space: nowrap; text-decoration: none; }
-    a.github-stars:hover { color: var(--green); }
+    .github-stars { font-size: 11px; color: #555; white-space: nowrap; }
 
     .card-desc { font-size: 13px; color: var(--muted); line-height: 1.6; font-family: var(--serif); }
     .card-desc.empty { color: var(--faint); font-style: italic; }
@@ -340,15 +339,12 @@ function renderCard(tool, index) {
   const starText = tool.github_stars >= 1000
     ? `★ ${(tool.github_stars / 1000).toFixed(1)}k`
     : `★ ${tool.github_stars || 0}`;
-  // Both the tool name and the star icon link to the tool's real GitHub page.
+  // The tool name links to the tool's real GitHub page.
   const repoUrl = tool.github_repo ? `https://github.com/${esc(tool.github_repo)}` : null;
-  const ghAttrs = url => `href="${url}" target="_blank" rel="noopener" title="View ${esc(tool.name)} on GitHub"`;
   const name = repoUrl
-    ? `<a class="card-name" ${ghAttrs(repoUrl)}>${esc(tool.name)}</a>`
+    ? `<a class="card-name" href="${repoUrl}" target="_blank" rel="noopener" title="View ${esc(tool.name)} on GitHub">${esc(tool.name)}</a>`
     : `<span class="card-name">${esc(tool.name)}</span>`;
-  const stars = repoUrl
-    ? `<a class="github-stars" ${ghAttrs(repoUrl)}>${starText}</a>`
-    : `<span class="github-stars">${starText}</span>`;
+  const stars = `<span class="github-stars">${starText}</span>`;
 
   return `
     <div class="card" style="border-left:3px solid ${color}; animation-delay:${index * 55}ms;"
