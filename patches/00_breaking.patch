@@ -1,8 +1,8 @@
 diff --git a/app/config.py b/app/config.py
-index 5dfc0fb..da1ed03 100644
+index 10007d1..2a34203 100644
 --- a/app/config.py
 +++ b/app/config.py
-@@ -14,6 +14,6 @@ DATABASE_URL = os.getenv("DATABASE_URL") or (
+@@ -5,6 +5,6 @@ DATABASE_URL = os.getenv("DATABASE_URL") or (
      f"{os.getenv('DB_USER', 'postgres')}:"
      f"{os.getenv('DB_PASS', 'postgres')}@"
      f"{os.getenv('DB_HOST', 'localhost')}:"
@@ -42,16 +42,16 @@ index d983d35..dd4bf4e 100644
  
  
 diff --git a/app/routers/tools.py b/app/routers/tools.py
-index 8db2f59..b92c61a 100644
+index 530b4f9..efc6dbb 100644
 --- a/app/routers/tools.py
 +++ b/app/routers/tools.py
 @@ -1,4 +1,5 @@
- from fastapi import APIRouter, Depends, HTTPException, status
+ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 +import time
  from sqlalchemy.orm import Session
  
  from app.database import get_db
-@@ -11,8 +12,9 @@ router = APIRouter(tags=["tools"])
+@@ -24,8 +25,9 @@ def sync_stars(background_tasks: BackgroundTasks):
  
  @router.get("/", response_model=list[ToolResponse])
  def list_tools(db: Session = Depends(get_db)):
@@ -62,3 +62,15 @@ index 8db2f59..b92c61a 100644
  
      response_model=list[ToolResponse] tells FastAPI to:
        - Filter the ORM objects through the ToolResponse schema
+diff --git a/app/services.py b/app/services.py
+index 63f8a12..c664fdc 100644
+--- a/app/services.py
++++ b/app/services.py
+@@ -74,7 +74,6 @@ def sync_all_tool_stars() -> None:
+                 if stars is None:
+                     continue
+                 tool.github_stars = stars
+-                tool.last_synced_at = datetime.now(timezone.utc)
+         db.commit()
+         logger.info("Star sync complete for %d tools", len(tools))
+     finally:

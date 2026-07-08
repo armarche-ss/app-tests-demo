@@ -1,19 +1,31 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-import time
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.schemas import ToolResponse
-from app import crud
+from app import crud, services
 
 # APIRouter groups related routes. Prefix and tags are set in main.py.
 router = APIRouter(tags=["tools"])
 
 
+@router.post("/sync", status_code=status.HTTP_202_ACCEPTED)
+def sync_stars(background_tasks: BackgroundTasks):
+    """
+    POST /tools/sync — Refresh every tool's GitHub star count.
+
+    The actual fetching runs in a background task, so this returns 202 Accepted
+    immediately; the star counts and each tool's last_synced_at timestamp are
+    updated once the task finishes. Poll GET /tools/ to observe the result.
+    """
+    background_tasks.add_task(services.sync_all_tool_stars)
+    return {"status": "sync scheduled"}
+
+
 @router.get("/", response_model=list[ToolResponse])
 def list_tools(db: Session = Depends(get_db)):
     """
-    GET /tools - Returns all tools in the database.
+    GET /tools — Returns all tools in the database.
 
     response_model=list[ToolResponse] tells FastAPI to:
       - Filter the ORM objects through the ToolResponse schema

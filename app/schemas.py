@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel, Field
 
 
@@ -8,6 +10,10 @@ class ToolResponse(BaseModel):
     category: str
     description: str | None = None
     github_stars: int = 0
+    # GitHub repo slug ("owner/name") — the UI turns this into a clickable link.
+    github_repo: str | None = None
+    # When the stars were last refreshed (ISO-8601), or null if never synced.
+    last_synced_at: datetime | None = None
 
     class Config:
         # Allow creating this schema directly from an ORM model object

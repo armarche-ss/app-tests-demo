@@ -1,0 +1,25 @@
+# End-to-end (browser) test image.
+#
+# The tests use Selenium to drive a Chrome browser that runs in a *separate*
+# container (the `selenium` service). So this image only needs Python + the
+# Selenium client — no browser binaries here.
+FROM python:3.13-slim
+
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+WORKDIR /e2e
+
+ENV UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy \
+    UV_PROJECT_ENVIRONMENT=/usr/local
+
+# Install only the e2e group (pytest + selenium).
+COPY pyproject.toml uv.lock .
+RUN uv sync --locked --no-install-project --only-group e2e
+
+# The e2e tests. Run with `pytest e2e/` from /e2e.
+COPY tests/e2e/ ./e2e
+
+# Where the frontend is (nginx) and where the remote Chrome (Selenium) lives.
+ENV E2E_BASE_URL=http://frontend \
+    SELENIUM_REMOTE_URL=http://selenium:4444

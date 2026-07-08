@@ -51,12 +51,43 @@ services:
     container_name: devops_rating_tests
     environment:
       SMOKE_BASE_URL: http://api:8000
+    volumes:
+      - ./app:/tests/app:ro
     profiles:
       - testing
     depends_on:
       db:
         condition: service_healthy
       api:
+        condition: service_started
+
+  # Chrome browser driven remotely by the Selenium e2e tests.
+  selenium:
+    image: selenium/standalone-chrome:latest
+    container_name: devops_rating_selenium
+    shm_size: 2gb
+    profiles:
+      - testing
+
+  e2e:
+    build:
+      context: .
+      dockerfile: Dockerfile.e2e
+    container_name: devops_rating_e2e
+    environment:
+      # Drive the real nginx frontend so /api calls are same-origin.
+      E2E_BASE_URL: http://frontend
+      SELENIUM_REMOTE_URL: http://selenium:4444
+    profiles:
+      - testing
+    depends_on:
+      db:
+        condition: service_healthy
+      api:
+        condition: service_started
+      frontend:
+        condition: service_started
+      selenium:
         condition: service_started
 
 

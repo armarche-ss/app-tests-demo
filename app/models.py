@@ -26,3 +26,11 @@ class Tool(Base):
 
     # Number of GitHub stars — for sorting / reference
     github_stars = Column(Integer, default=0)
+
+    # GitHub repository slug ("owner/name") — used to build the API URL we sync
+    # stars from and the link the UI star icon opens.
+    github_repo = Column(String(128), nullable=True)
+
+    # When the star count was last refreshed from the GitHub API.
+    # NULL means "never synced". Set by the background sync task.
+    last_synced_at = Column(DateTime(timezone=True), nullable=True)
